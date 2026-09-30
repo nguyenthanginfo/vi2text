@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kiểm tra Giọng đọc Web Speech API</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 700px;
+            margin: 40px auto;
+            padding: 20px;
+            background-color: #f9f9f9;
+            color: #333;
+        }
+        h1 {
+            color: #1a73e8;
+            font-size: 22px;
+        }
+        button {
+            background-color: #1a73e8;
+            color: white;
+            border: none;
+            padding: 10px 18px;
+            font-size: 16px;
+            cursor: pointer;
+            border-radius: 4px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #1557b0;
+        }
+        ul {
+            background: white;
+            padding: 15px 15px 15px 35px;
+            border-radius: 6px;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+        li {
+            margin-bottom: 8px;
+        }
+        .vi-voice {
+            color: #0d652d;
+            font-weight: bold;
+        }
+        .status {
+            margin-top: 15px;
+            font-style: italic;
+            color: #666;
+        }
+    </style>
+</head>
+<body>
+
+    <h1>Kiểm tra Web Speech API Voices</h1>
+    <p>Trang này sẽ liệt kê các giọng đọc mà trình duyệt trên máy tính của bạn đang hỗ trợ từ hệ điều hành.</p>
+    
+    <button onclick="speakTest()">Nghe thử tiếng Việt</button>
+    
+    <div class="status" id="status">Đang tải danh sách giọng đọc...</div>
+    
+    <h3>Danh sách giọng đọc tiếng Việt tìm thấy:</h3>
+    <ul id="vi-voices-list">
+        <li>Đang quét...</li>
+    </ul>
+
+    <h3>Toàn bộ danh sách giọng đọc trên máy:</h3>
+    <ul id="all-voices-list">
+        <li>Đang quét...</li>
+    </ul>
+
+    <script>
+        function loadVoices() {
+            const voices = window.speechSynthesis.getVoices();
+            const viListEl = document.getElementById('vi-voices-list');
+            const allListEl = document.getElementById('all-voices-list');
+            const statusEl = document.getElementById('status');
+
+            if (voices.length === 0) {
+                statusEl.innerText = "Trình duyệt chưa sẵn sàng danh sách giọng đọc, đang thử lại...";
+                return;
+            }
+
+            statusEl.innerText = `Đã tìm thấy tổng cộng ${voices.length} giọng đọc trên thiết bị của bạn.`;
+            
+            viListEl.innerHTML = '';
+            allListEl.innerHTML = '';
+
+            let viCount = 0;
+
+            voices.forEach(voice => {
+                // Hiển thị toàn bộ danh sách
+                const liAll = document.createElement('li');
+                liAll.innerHTML = `${voice.name} — <code>${voice.lang}</code> ${voice.default ? '<b>(Mặc định)</b>' : ''}`;
+                allListEl.appendChild(liAll);
+
+                // Lọc riêng tiếng Việt
+                if (voice.lang.toLowerCase().includes('vi')) {
+                    viCount++;
+                    const liVi = document.createElement('li');
+                    liVi.className = 'vi-voice';
+                    liVi.innerHTML = `✨ ${voice.name} — <code>${voice.lang}</code>`;
+                    viListEl.appendChild(liVi);
+                }
+            });
+
+            if (viCount === 0) {
+                viListEl.innerHTML = '<li style="color: red;">Không tìm thấy giọng tiếng Việt nào trên máy tính này! Chrome có thể sẽ đọc bằng giọng mặc định hoặc tiếng Anh.</li>';
+            }
+        }
+
+        // Chrome cần sự kiện onvoiceschanged để nạp dữ liệu bất đồng bộ
+        if ('speechSynthesis' in window) {
+            window.speechSynthesis.onvoiceschanged = loadVoices;
+            // Gọi luôn phòng trường hợp đã load sẵn
+            setTimeout(loadVoices, 100);
+        } else {
+            document.getElementById('status').innerText = "Trình duyệt của bạn không hỗ trợ Web Speech API!";
+        }
+
+        function speakTest() {
+            if (!('speechSynthesis' in window)) {
+                alert("Trình duyệt không hỗ trợ!");
+                return;
+            }
+
+            const text = "Xin chào! Đây là tính năng kiểm tra giọng đọc tiếng Việt bằng Web Speech API trên trình duyệt.";
+            const utterance = new SpeechSynthesisUtterance(text);
+            utterance.lang = 'vi-VN';
+
+            const voices = window.speechSynthesis.getVoices();
+            const viVoice = voices.find(v => v.lang.toLowerCase().includes('vi'));
+
+            if (viVoice) {
+                utterance.voice = viVoice;
+                console.log("Đang dùng giọng:", viVoice.name);
+            } else {
+                console.warn("Không tìm thấy giọng Việt, dùng giọng mặc định của trình duyệt.");
+            }
+
+            window.speechSynthesis.speak(utterance);
+        }
+    </script>
+
+</body>
+</html>

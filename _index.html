@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ghi Chép — Mic App</title>
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#14181d">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <header class="app-header">
+    <input id="titleInput" class="title-input" type="text" value="Ghi chú cá nhân" maxlength="80" aria-label="Tiêu đề ghi chú">
+    <button id="themeToggle" class="icon-btn" type="button" title="Đổi giao diện sáng/tối" aria-label="Đổi giao diện sáng/tối">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v1M12 20v1M4.2 4.2l.8.8M19 19l.8.8M3 12h1M20 12h1M4.2 19.8l.8-.8M19 5l.8-.8"/><circle cx="12" cy="12" r="5"/></svg>
+    </button>
+  </header>
+
+  <main class="deck">
+
+    <!-- KHU VỰC GHI ÂM (chỉ MIC — Web Speech API không chọn được nguồn) -->
+    <section class="recorder-panel" aria-label="Ghi âm">
+      <button id="recordBtn" class="mic-btn" type="button" aria-pressed="false" aria-label="Bắt đầu/dừng nhận diện giọng nói">
+        <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <rect x="9" y="3" width="6" height="11" rx="3"/>
+          <path d="M5 11a7 7 0 0 0 14 0"/>
+          <line x1="12" y1="18" x2="12" y2="22"/>
+          <line x1="8" y1="22" x2="16" y2="22"/>
+        </svg>
+      </button>
+
+      <div class="vu-meter" id="vuMeter" aria-hidden="true"></div>
+
+      <div class="timer" id="timer">00:00 / 20:00</div>
+      <div class="rec-status" id="recStatus">Bấm nút MIC để bắt đầu</div>
+    </section>
+
+    <!-- VÙNG SOẠN THẢO -->
+    <section class="editor-panel" aria-label="Bản ghi văn bản">
+      <div class="editor-panel__head">
+        <span class="editor-panel__title">Bản ghi</span>
+        <div class="editor-panel__actions">
+          <button id="copyBtn" class="chip-btn" type="button" title="Copy văn bản">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15V5a2 2 0 0 1 2-2h10"/></svg>
+            Copy
+          </button>
+          <button id="newBtn" class="chip-btn" type="button" title="Tạo phiên mới, xoá văn bản hiện tại">
+            <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            New
+          </button>
+        </div>
+      </div>
+      <textarea
+        id="editor"
+        class="editor"
+        placeholder="Văn bản xuất hiện ở đây khi bạn nói…"
+        spellcheck="false"
+      ></textarea>
+      <div class="interim-line" id="interimLine"></div>
+      <div class="editor-panel__foot">
+        <span class="char-count" id="charCount">0 ký tự</span>
+      </div>
+    </section>
+
+    <!-- ĐỌC LẠI (TTS) -->
+    <section class="tts-panel" aria-label="Đọc lại bằng giọng tổng hợp">
+      <div class="tts-panel__row">
+        <label class="field">
+          <span>Giọng đọc</span>
+          <select id="voiceSelect" class="field__control"></select>
+        </label>
+
+        <label class="field">
+          <span>Tốc độ</span>
+          <select id="speedSelect" class="field__control">
+            <option value="0.75">0.75x</option>
+            <option value="1.00" selected>1.00x</option>
+            <option value="1.25">1.25x</option>
+            <option value="1.50">1.50x</option>
+            <option value="2.00">2.00x</option>
+          </select>
+        </label>
+      </div>
+
+      <div class="tts-panel__row">
+        <button id="playBtn" class="btn btn--ghost" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"/></svg>
+          Nghe đọc
+        </button>
+        <audio id="ttsAudio" controls class="tts-audio" hidden></audio>
+      </div>
+    </section>
+
+    <!-- LƯU / XUẤT -->
+    <section class="save-panel" aria-label="Lưu và xuất file">
+      <button id="exportTxtBtn" class="btn btn--ghost" type="button">Lưu .TXT</button>
+      <button id="exportDocxBtn" class="btn btn--primary" type="button">Lưu .DOCX</button>
+      <button id="exportMp3Btn" class="btn btn--ghost" type="button">Lưu .MP3</button>
+      <span class="save-panel__status" id="saveStatus"></span>
+    </section>
+
+    <!-- CẤU HÌNH API (chỉ còn dùng cho phần Nghe đọc / TTS) -->
+    <details class="settings-panel" id="settingsPanel">
+      <summary>⚙︎ Cấu hình giọng đọc (Google / Microsoft)</summary>
+      <div class="settings-grid">
+        <label class="field-inline">
+          <span>Nhà cung cấp</span>
+          <select id="providerSelect" class="field__control">
+            <option value="google">Google Cloud</option>
+            <option value="azure">Microsoft Azure</option>
+          </select>
+        </label>
+
+        <label class="field-inline" data-provider="google">
+          <span>Google TTS API key</span>
+          <input id="googleTtsKey" class="field__control" type="password" autocomplete="off">
+        </label>
+
+        <label class="field-inline" data-provider="azure">
+          <span>Azure Subscription key</span>
+          <input id="azureKey" class="field__control" type="password" autocomplete="off">
+        </label>
+        <label class="field-inline" data-provider="azure">
+          <span>Azure Region</span>
+          <input id="azureRegion" class="field__control" type="text" autocomplete="off">
+        </label>
+
+        <button id="saveSettingsBtn" class="btn btn--primary" type="button">Lưu cấu hình</button>
+        <p class="settings-hint">
+          Nhận diện giọng nói (STT) — miễn phí, không cần API key - CHỈ hoạt động tốt trên Chrome/Edge.
+          API key chỉ dùng cho tính năng 'Nghe đọc' (TTS), được lưu trong máy người dùng - hoàn toàn bảo mật.
+        </p>
+      </div>
+    </details>
+
+  </main>
+
+  <div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/docx@8.5.0/build/index.umd.js"></script>
+
+<script src="js/theme.js"></script>
+<script src="js/settings.js"></script>
+<script src="js/session.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/mic-meter.js"></script>
+<script src="js/vu-meter.js"></script>
+<script src="js/vad.js"></script>
+<script src="js/speech-recognizer.js"></script>
+<script src="js/providers/google.js"></script>
+<script src="js/providers/azure.js"></script>
+<script src="js/tts.js"></script>
+<script src="js/voices.js"></script>
+<script src="js/text-save.js"></script>
+<script src="js/app.js"></script>
+
+<script>
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker.register('service-worker.js').catch(() => {});
+    });
+  }
+</script>
+</body>
+</html>

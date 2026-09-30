@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="vi" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Hướng dẫn — Voice to Text Studio</title>
+<link rel="icon" href="icons/icon.svg" type="image/svg+xml">
+<meta name="theme-color" content="#14181d">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/about.css">
+</head>
+<body>
+
+<div class="doc">
+
+  <header class="doc-header">
+    <a class="doc-back" href="index.html">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="19" y1="12" x2="5" y2="12"/><polyline points="12 19 5 12 12 5"/></svg>
+      Quay lại
+    </a>
+    <button id="themeToggle" class="icon-btn" type="button" title="Đổi giao diện sáng/tối" aria-label="Đổi giao diện sáng/tối">
+      <svg viewBox="0 0 24 24" fill="none" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v1M12 20v1M4.2 4.2l.8.8M19 19l.8.8M3 12h1M20 12h1M4.2 19.8l.8-.8M19 5l.8-.8"/><circle cx="12" cy="12" r="5"/></svg>
+    </button>
+  </header>
+
+  <h1 class="doc-title">Hướng dẫn</h1>
+  <p class="doc-lede">
+    Cách tạo API key cho phần "Nghe đọc" & Cài đặt thành ứng dụng trên điện thoại.
+  </p>
+
+  <!-- ===================== PHẦN 1 ===================== -->
+  <section class="doc-section" aria-labelledby="phan1-title">
+    <h2 class="doc-section__title" id="phan1-title">1. Lấy API key cho giọng đọc</h2>
+    <p class="doc-section__note">
+      Chỉ cần thực hiện khi muốn dùng giọng đọc tốt hơn của Google/Azure trong phần "Nghe đọc". Nếu chọn
+      giọng "Trình duyệt (miễn phí)" thì bỏ qua bước này.
+    </p>
+
+    <div class="tabs">
+      <div class="tabs__nav" role="tablist">
+        <button class="tabs__btn" role="tab" data-tab="tab-google" aria-selected="true" type="button">Google Cloud</button>
+        <button class="tabs__btn" role="tab" data-tab="tab-azure" aria-selected="false" type="button">Microsoft Azure</button>
+      </div>
+
+      <div class="tabs__panel" id="tab-google" data-active="true">
+        <ol class="steps">
+          <li>Truy cập <a href="https://console.cloud.google.com" target="_blank" rel="noopener">console.cloud.google.com</a> và đăng nhập bằng tài khoản Google.</li>
+          <li>Tạo một Project mới (hoặc Project có sẵn) ở góc trên cùng.</li>
+          <li>(Bạn phải nhập thông tin thẻ Visa/Master mới kích hoạt được)</li>
+          <li>Vào <strong>APIs &amp; Services → Library</strong>tìm <strong>Cloud Text-to-Speech API</strong> và bấm <strong>Enable</strong></li>
+          <li>Vào <strong>APIs &amp; Services → Credentials → Create Credentials → API key</strong></li>
+          <li>Copy đoạn key vừa tạo, dán vào ô <strong>Google TTS API key</strong> trong 'Cấu hình giọng đọc' của App.</li>
+        </ol>
+        <p class="doc-callout">
+          Google Cloud có mức dùng miễn phí giới hạn (khoảng 1 triệu chữ/tháng) cho
+          'Text-to-Speech', vượt mức sẽ tính phí theo tài khoản Visa/Master đã liên kết.
+        </p>
+      </div>
+
+      <div class="tabs__panel" id="tab-azure">
+        <ol class="steps">
+          <li>Truy cập <a href="https://portal.azure.com" target="_blank" rel="noopener">portal.azure.com</a> và đăng nhập bằng tài khoản Microsoft.</li>
+          <li>Bấm <strong>Create a resource</strong>tìm và chọn <strong>Speech</strong> (Azure AI Speech).</li>
+          <li>(Bạn phải nhập thông tin thẻ Visa/Master mới kích hoạt được)</li>
+          <li>Đặt tên, chọn <strong>Region</strong> (vd: Southeast Asia) và gói giá (miễn phí/trả phí).</li>
+          <li>Sau khi tạo xong, mở resource vừa tạo → vào mục <strong>Keys and Endpoint</strong></li>
+          <li>Copy 1 trong 2 Key, cùng với Region, dán vào ô <strong>Azure Subscription key</strong> và <strong>Azure Region</strong> trong 'Cấu hình giọng đọc' của App.</li>
+        </ol>
+        <p class="doc-callout">
+          Ô <strong>Region</strong> cần nhập đúng dạng viết liền không dấu cách, ví dụ <code>southeastasia</code>.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ===================== PHẦN 2 ===================== -->
+  <section class="doc-section" aria-labelledby="phan2-title">
+    <h2 class="doc-section__title" id="phan2-title">2. Cài thành ứng dụng trên điện thoại</h2>
+    <p class="doc-section__note">
+      Sau khi cài, App sẽ có icon trên màn hình chính và mở lên như một ứng dụng thông thường.
+    </p>
+
+    <div class="tabs">
+      <div class="tabs__nav" role="tablist">
+        <button class="tabs__btn" role="tab" data-tab="tab-ios" aria-selected="true" type="button">iPhone</button>
+        <button class="tabs__btn" role="tab" data-tab="tab-android" aria-selected="false" type="button">Android</button>
+      </div>
+
+      <div class="tabs__panel" id="tab-ios" data-active="true">
+        <ol class="steps">
+          <li>Mở link này bằng <strong>Safari</strong> hoặc Chrome.</li>
+          <li>Bấm nút <strong>Chia sẻ</strong> (hình vuông có mũi tên đi lên) trên thanh công cụ.</li>
+          <li>Cuộn xuống, chọn <strong>Thêm vào Màn hình chính</strong></li>
+          <li>Bấm <strong>Thêm</strong> ở góc trên — icon App xuất hiện trên màn hình chính.</li>
+        </ol>
+      </div>
+
+      <div class="tabs__panel" id="tab-android">
+        <ol class="steps">
+          <li>Mở link này bằng <strong>Chrome/Edge</strong></li>
+          <li>Bấm menu 3 chấm (⋮) ở góc trên bên phải, gần thanh địa chỉ.</li>
+          <li>Chọn <strong>Cài đặt ứng dụng</strong> (hoặc "Thêm vào Màn hình chính").</li>
+          <li>Xác nhận xong, icon App xuất hiện trên màn hình chính.</li>
+        </ol>
+      </div>
+    </div>
+
+<!--    <p class="doc-callout">
+      Tên nút và vị trí menu có thể thay đổi tuỳ phiên bản trình duyệt/hệ điều hành — về cơ bản luôn nằm
+      trong menu chia sẻ (iPhone) hoặc menu 3 chấm (Android).
+    </p> -->
+  </section>
+
+</div>
+<div class="site-footer">
+    <p>Nếu bạn muốn mời 1 ly cà phê.</p>
+    <p>5510100657003 MB Bank</p>
+    <br>
+    <img src="icons/mb-account.png" alt="App logo" width="100" height="100" alt="QR account" class="footer-logo">
+    <br>
+    <p>nguyenthang.info@gmail.com</p>
+</div>
+
+<script src="js/theme.js"></script>
+<script>Theme.init();</script>
+<script src="js/about.js"></script>
+<script>
+  document.getElementById('themeToggle').addEventListener('click', () => Theme.toggle());
+</script>
+</body>
+</html>

@@ -1,0 +1,469 @@
+/* ============================================================
+   Voice Notes — Mic App, English (Netlify, thuần JS)
+   Token theme: [data-theme="dark"] (mặc định) / [data-theme="light"]
+   ============================================================ */
+
+:root {
+  --radius-sm: 8px;
+  --radius-md: 14px;
+  --radius-lg: 22px;
+  --font-ui: -apple-system, "Segoe UI", Roboto, sans-serif;
+  --font-serif: "Iowan Old Style", "Palatino Linotype", Georgia, "Noto Serif", serif;
+}
+
+/* ---------- Theme tokens ---------- */
+:root,
+[data-theme="dark"] {
+  --bg: #14181d;
+  --panel: #1b2027;
+  --panel-raised: #222831;
+  --line: #2c333d;
+  --text: #e9e5da;
+  --text-dim: #8a92a1;
+  --accent: #c9902f;
+  --accent-dim: #7a6636;
+  --accent-contrast: #14181d;
+  --danger: #c65a45;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+[data-theme="light"] {
+  --bg: #f3efe6;
+  --panel: #ffffff;
+  --panel-raised: #f7f4ed;
+  --line: #ddd6c6;
+  --text: #262320;
+  --text-dim: #7a7566;
+  --accent: #a8701f;
+  --accent-dim: #d9b878;
+  --accent-contrast: #ffffff;
+  --danger: #b8503c;
+  --shadow: 0 8px 24px rgba(0, 0, 0, 0.08);
+}
+
+* { box-sizing: border-box; }
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: var(--font-ui);
+  transition: background 0.2s ease, color 0.2s ease;
+}
+
+.app {
+  max-width: 720px;
+  margin: 0 auto;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+button, select, input, textarea {
+  font-family: inherit;
+  color: inherit;
+}
+
+/* ---------- Header ---------- */
+
+.app-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 20px 16px 14px;
+  border-bottom: 1px solid var(--line);
+}
+
+.app-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.footer-logo {
+  width: 100px;
+  height: 100px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+.site-footer {
+  margin: 24px auto 0;
+  padding: 16px;
+  text-align: center;
+  color: var(--text);
+  font-size: 0.85rem;
+  border-top: 1px solid var(--accent-dim);
+}
+
+.title-input {
+  max-width: 300px;
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  font-family: var(--font-serif);
+  font-size: 19px;
+  color: var(--text);
+  min-width: 0;
+}
+
+.icon-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 38px;
+  height: 38px;
+  border-radius: var(--radius-sm);
+  border: 1px solid var(--line);
+  background: var(--panel);
+  cursor: pointer;
+  flex-shrink: 0;
+}
+
+.icon-btn svg { width: 18px; height: 18px; stroke: var(--text); }
+.icon-btn:hover { border-color: var(--accent-dim); }
+
+/* ---------- Layout ---------- */
+
+.deck {
+  flex: 1;
+  padding: 18px 16px 32px;
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+section {
+  border: 1px solid var(--line);
+  background: var(--panel);
+  border-radius: var(--radius-lg);
+  padding: 18px;
+}
+
+/* ---------- Recorder ---------- */
+
+.recorder-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 14px;
+}
+
+.mic-btn {
+  --mic-size: 92px;
+  width: var(--mic-size);
+  height: var(--mic-size);
+  border-radius: 50%;
+  border: none;
+  background: var(--accent);
+  color: var(--accent-contrast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  box-shadow: var(--shadow);
+  transition: transform 0.12s ease;
+}
+
+.mic-btn:active { transform: scale(0.96); }
+
+.mic-btn svg { width: 38px; height: 38px; stroke: var(--accent-contrast); }
+
+.mic-btn::before {
+  content: '';
+  position: absolute;
+  inset: -8px;
+  border-radius: 50%;
+  border: 2px solid var(--accent);
+  opacity: 0;
+}
+
+.mic-btn[aria-pressed="true"] {
+  background: var(--danger);
+}
+
+.mic-btn[aria-pressed="true"] svg { stroke: #fff; }
+
+.mic-btn[aria-pressed="true"]::before {
+  opacity: 1;
+  animation: mic-pulse 1.6s ease-out infinite;
+  border-color: var(--danger);
+}
+
+@keyframes mic-pulse {
+  0% { transform: scale(1); opacity: 0.6; }
+  100% { transform: scale(1.35); opacity: 0; }
+}
+
+.vu-meter {
+  display: flex;
+  align-items: flex-end;
+  gap: 3px;
+  height: 18px;
+}
+
+.vu-bar {
+  width: 4px;
+  height: 30%;
+  border-radius: 2px;
+  background: var(--line);
+  transition: height 0.08s ease, background 0.08s ease;
+}
+
+.vu-bar--active {
+  background: var(--accent);
+  height: 100%;
+}
+
+/* Trạng thái nền khi đang ghi — KHÔNG dựa trên audio thật (xem vu-meter.js
+   để biết lý do: tránh mở getUserMedia thứ 2, gây tranh chấp mic trên
+   Android). .vu-bar--active (ở trên) được tái dùng làm hiệu ứng "chớp"
+   ngắn mỗi khi SpeechRecognizer thực sự nhận diện được nội dung. */
+.vu-bar--listening {
+  background: var(--accent-dim);
+  height: 55%;
+}
+
+.timer {
+  font-variant-numeric: tabular-nums;
+  color: var(--text-dim);
+  font-size: 13.5px;
+}
+
+.rec-status {
+  font-size: 12.5px;
+  color: var(--accent);
+  min-height: 16px;
+}
+
+/* Nguồn audio + settings */
+
+.source-row {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+.field-inline {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 11.5px;
+  color: var(--text-dim);
+}
+
+.field__control {
+  background: var(--panel-raised);
+  border: 1px solid var(--line);
+  color: var(--text);
+  padding: 8px 10px;
+  font-size: 13.5px;
+  border-radius: var(--radius-sm);
+  min-width: 150px;
+}
+
+/* ---------- Editor ---------- */
+
+.editor-panel__head {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  gap: 8px;
+}
+
+.editor-panel__title {
+  font-family: var(--font-serif);
+  font-size: 15.5px;
+}
+
+.editor-panel__actions {
+  display: flex;
+  gap: 6px;
+}
+
+.chip-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  border: 1px solid var(--line);
+  background: var(--panel-raised);
+  color: var(--text);
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+}
+
+.chip-btn svg { width: 13px; height: 13px; stroke: currentColor; }
+.chip-btn:hover { border-color: var(--accent-dim); }
+
+.editor {
+  width: 100%;
+  min-height: 220px;
+  resize: vertical;
+  background: transparent;
+  border: none;
+  outline: none;
+  color: var(--text);
+  font-family: var(--font-serif);
+  font-size: 16.5px;
+  line-height: 1.65;
+  padding: 0;
+}
+
+.editor::placeholder { color: var(--text-dim); }
+
+.interim-line {
+  min-height: 18px;
+  font-size: 13px;
+  color: var(--text-dim);
+  font-style: italic;
+  margin-top: 6px;
+}
+
+.editor-panel__foot {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+}
+
+.char-count {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  font-variant-numeric: tabular-nums;
+}
+
+/* ---------- TTS panel ---------- */
+
+.tts-panel__row {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+}
+
+.tts-panel__row + .tts-panel__row { margin-top: 14px; }
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  font-size: 12px;
+  color: var(--text-dim);
+  flex: 1;
+  min-width: 130px;
+}
+
+.tts-audio {
+  flex: 1;
+  min-width: 200px;
+  height: 34px;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  border: 1px solid var(--line);
+  background: transparent;
+  color: var(--text);
+  padding: 10px 16px;
+  font-size: 13.5px;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.btn svg { width: 14px; height: 14px; stroke: currentColor; }
+.btn--ghost:hover { border-color: var(--accent-dim); }
+
+.btn--primary {
+  border-color: var(--accent-dim);
+  color: var(--accent-contrast);
+  background: var(--accent);
+}
+
+/* ---------- Save panel ---------- */
+
+.save-panel {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.save-panel__status {
+  margin-left: auto;
+  font-size: 12px;
+  color: var(--text-dim);
+}
+
+/* ---------- Guide ---------- */
+.guide-link {
+  display: inline-block;
+  margin: 4px 0 16px;
+  color: var(--text-dim);
+  text-decoration: none;
+  font-size: 14px;
+}
+.guide-link:hover {
+  color: var(--accent);
+}
+
+/* ---------- Settings (details) ---------- */
+
+.settings-panel summary {
+  cursor: pointer;
+  font-family: var(--font-serif);
+  font-size: 15px;
+  list-style: none;
+}
+.settings-panel summary::-webkit-details-marker { display: none; }
+
+.settings-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.settings-grid .field__control { width: 100%; min-width: 0; }
+
+.settings-hint {
+  font-size: 11.5px;
+  color: var(--text-dim);
+  line-height: 1.5;
+}
+
+/* ---------- Toast ---------- */
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 20px;
+  transform: translateX(-50%);
+  background: var(--panel);
+  border: 1px solid var(--danger);
+  color: var(--text);
+  padding: 12px 18px;
+  font-size: 13px;
+  max-width: 92%;
+  border-radius: var(--radius-md);
+  box-shadow: var(--shadow);
+  z-index: 20;
+}
+
+@media (max-width: 480px) {
+  .deck { padding: 14px; gap: 14px; }
+  section { padding: 14px; }
+  .mic-btn { --mic-size: 80px; }
+}
